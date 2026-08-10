@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Member Login — Adam Valinsky</title>
+  <meta name="description" content="Member login." />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav">
+      <a class="nav-brand" href="index.html">Adam Valinsky</a>
+      <div class="nav-right">
+        <ul class="nav-links">
+          <li><a href="index.html">About</a></li>
+          <li><a href="projects.html">Projects</a></li>
+          <li><a href="resume.html">Resume</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+        <a class="btn btn-secondary nav-login" href="login.html">Member Login</a>
+        <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h1>Member Login</h1>
+      <p class="lede">Sign in to access the members-only section.</p>
+    </section>
+
+    <section>
+      <div class="auth-card">
+        <form id="login-form">
+          <div class="form-field">
+            <label for="username">Username</label>
+            <input id="username" name="username" type="text" autocomplete="username" required />
+          </div>
+          <div class="form-field">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required />
+          </div>
+          <p id="login-error" class="auth-error" role="alert"></p>
+          <button class="btn btn-primary" type="submit">Log In</button>
+        </form>
+        <p style="margin-top: 16px;">
+          <button id="forgot-password-btn" class="btn-link" type="button">Forgot password?</button>
+        </p>
+        <p id="forgot-password-status" class="auth-success" role="status"></p>
+        <p class="auth-hint">
+          Placeholder login for demo purposes only — credentials are stored in plain JavaScript,
+          not verified by a server. Do not use real passwords here.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <span>&copy; 2026 Adam Valinsky</span>
+      <ul class="footer-links">
+        <li><a href="mailto:placeholder@example.com">Email</a></li>
+        <li><a href="#">LinkedIn</a></li>
+        <li><a href="#">GitHub</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

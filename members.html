@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Members — Adam Valinsky</title>
+  <meta name="description" content="Members-only section." />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body data-member-gate>
+  <header class="site-header">
+    <nav class="nav">
+      <a class="nav-brand" href="index.html">Adam Valinsky</a>
+      <div class="nav-right">
+        <ul class="nav-links">
+          <li><a href="index.html">About</a></li>
+          <li><a href="projects.html">Projects</a></li>
+          <li><a href="resume.html">Resume</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+        <a class="btn btn-secondary nav-login" href="login.html">Member Login</a>
+        <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="member-banner">
+      <span>Signed in as <strong data-current-username>adam</strong></span>
+      <span class="button-row" style="margin-top: 0;">
+        <a href="profile.html" class="btn-link" style="text-decoration: none;">Profile</a>
+        <button id="logout-btn" class="btn-link" type="button">Log out</button>
+      </span>
+    </div>
+
+    <section class="hero">
+      <h1>Members Area</h1>
+      <p class="lede">Placeholder members-only content. Replace with whatever should be gated behind login.</p>
+    </section>
+
+    <section>
+      <div class="grid">
+        <div class="card">
+          <h3>VFlicks</h3>
+          <p>Watch your favorite movies and TV shows</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Request a Movie or Show</h2>
+      <p class="section-intro">Don't see something on VFlicks? Request it below.</p>
+      <div class="card">
+        <form id="request-form">
+          <input type="hidden" name="access_key" value="YOUR_WEB3FORMS_ACCESS_KEY" />
+          <input type="hidden" name="subject" value="New VFlicks Request" />
+          <input type="hidden" name="from_name" value="VFlicks Request Form" />
+          <div class="form-field">
+            <label for="request-title">Title</label>
+            <input id="request-title" name="request-title" type="text" placeholder="e.g. The Matrix" required />
+          </div>
+          <div class="form-field">
+            <label for="request-type">Type</label>
+            <select id="request-type" name="request-type">
+              <option value="movie">Movie</option>
+              <option value="tv">TV Show</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="request-notes">Notes (optional)</label>
+            <textarea id="request-notes" name="request-notes" placeholder="Any details — year, season, etc."></textarea>
+          </div>
+          <button class="btn btn-primary" type="submit">Submit Request</button>
+          <p id="request-status" class="auth-success" style="margin-top: 16px;"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <span>&copy; 2026 Adam Valinsky</span>
+      <ul class="footer-links">
+        <li><a href="mailto:placeholder@example.com">Email</a></li>
+        <li><a href="#">LinkedIn</a></li>
+        <li><a href="#">GitHub</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
