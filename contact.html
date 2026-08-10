@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact — Adam Valinsky</title>
+  <meta name="description" content="Get in touch with Adam Valinsky." />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav">
+      <a class="nav-brand" href="index.html">Adam Valinsky</a>
+      <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
+      <ul class="nav-links">
+        <li><a href="index.html">About</a></li>
+        <li><a href="projects.html">Projects</a></li>
+        <li><a href="resume.html">Resume</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h1>Contact</h1>
+      <p class="lede">Placeholder contact page. Wire the form up to an email service (e.g. Formspree, Netlify Forms) or a backend before going live.</p>
+    </section>
+
+    <section>
+      <div class="contact-grid">
+        <form id="contact-form">
+          <div class="form-field">
+            <label for="name">Name</label>
+            <input id="name" name="name" type="text" required />
+          </div>
+          <div class="form-field">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" required />
+          </div>
+          <div class="form-field">
+            <label for="message">Message</label>
+            <textarea id="message" name="message" required></textarea>
+          </div>
+          <button class="btn btn-primary" type="submit">Send Message</button>
+          <p id="form-status" class="section-intro" style="margin-top: 16px;"></p>
+        </form>
+
+        <div>
+          <div class="contact-info-item">
+            <div class="label">Email</div>
+            <a href="mailto:placeholder@example.com">placeholder@example.com</a>
+          </div>
+          <div class="contact-info-item">
+            <div class="label">LinkedIn</div>
+            <a href="#">linkedin.com/in/placeholder</a>
+          </div>
+          <div class="contact-info-item">
+            <div class="label">GitHub</div>
+            <a href="#">github.com/adamvalinsky</a>
+          </div>
+          <div class="contact-info-item">
+            <div class="label">Location</div>
+            <span>City, State (placeholder)</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <span>&copy; 2026 Adam Valinsky</span>
+      <ul class="footer-links">
+        <li><a href="mailto:placeholder@example.com">Email</a></li>
+        <li><a href="#">LinkedIn</a></li>
+        <li><a href="#">GitHub</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
