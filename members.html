@@ -26,7 +26,7 @@
 
   <main class="container">
     <div class="member-banner">
-      <span>Signed in as <strong data-current-username>adam</strong></span>
+      <span>Signed in as <strong data-current-email>…</strong></span>
       <span class="button-row" style="margin-top: 0;">
         <a href="profile.html" class="btn-link" style="text-decoration: none;">Profile</a>
         <button id="logout-btn" class="btn-link" type="button">Log out</button>
@@ -40,7 +40,7 @@
     <section>
       <div class="grid">
         <div class="card">
-          <h3>VFlicks</h3>
+          <h3>VFlix</h3>
           <p>Watch your favorite movies and TV shows</p>
         </div>
       </div>
@@ -48,12 +48,12 @@
 
     <section>
       <h2>Request a Movie or Show</h2>
-      <p class="section-intro">Don't see something on VFlicks? Request it below.</p>
+      <p class="section-intro">Don't see something on VFlix? Request it below.</p>
       <div class="card">
         <form id="request-form">
-          <input type="hidden" name="access_key" value="YOUR_WEB3FORMS_ACCESS_KEY" />
-          <input type="hidden" name="subject" value="New VFlicks Request" />
-          <input type="hidden" name="from_name" value="VFlicks Request Form" />
+          <input type="hidden" name="access_key" value="41f65e1a-4095-4471-9961-3e02e16a659f" />
+          <input type="hidden" name="subject" value="New VFlix Request" />
+          <input type="hidden" name="from_name" value="VFlix Request Form" />
           <div class="form-field">
             <label for="request-title">Title</label>
             <input id="request-title" name="request-title" type="text" placeholder="e.g. The Matrix" required />
@@ -87,6 +87,7 @@
     </div>
   </footer>
 
+  <script src="js/vendor/supabase.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

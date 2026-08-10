@@ -1,58 +1,70 @@
-// Placeholder-only auth: credentials live in localStorage in plain text,
-// so this gate is for demo/UI purposes only, not real security.
+const SUPABASE_URL = "https://yoamadmjpawhyietyjkr.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_kHJDJhShP2i1yYPYOSsl5Q_T6A8TmIT";
+let supabaseClient;
+
 const AVW_AUTH = {
-  SESSION_KEY: "avw_member_auth",
-  CREDENTIALS_KEY: "avw_member_credentials",
-  DEFAULT_CREDENTIALS: { username: "adam", password: "adam" },
-
-  getCredentials() {
-    try {
-      const raw = localStorage.getItem(this.CREDENTIALS_KEY);
-      if (!raw) return { ...this.DEFAULT_CREDENTIALS };
-      const parsed = JSON.parse(raw);
-      if (!parsed.username || !parsed.password) return { ...this.DEFAULT_CREDENTIALS };
-      return parsed;
-    } catch {
-      return { ...this.DEFAULT_CREDENTIALS };
-    }
+  async getSession() {
+    const { data } = await supabaseClient.auth.getSession();
+    return data.session;
   },
 
-  setCredentials(username, password) {
-    localStorage.setItem(this.CREDENTIALS_KEY, JSON.stringify({ username, password }));
+  async isLoggedIn() {
+    return !!(await this.getSession());
   },
 
-  isLoggedIn() {
-    return sessionStorage.getItem(this.SESSION_KEY) === "true";
+  async getEmail() {
+    const session = await this.getSession();
+    return session?.user?.email || null;
   },
 
-  login(username, password) {
-    const creds = this.getCredentials();
-    const ok = username === creds.username && password === creds.password;
-    if (ok) {
-      sessionStorage.setItem(this.SESSION_KEY, "true");
-    }
-    return ok;
+  async login(email, password) {
+    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    return { ok: !error, error: error?.message };
   },
 
-  logout() {
-    sessionStorage.removeItem(this.SESSION_KEY);
+  async logout() {
+    await supabaseClient.auth.signOut();
+  },
+
+  async sendPasswordReset(email) {
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password.html`,
+    });
+    return { ok: !error, error: error?.message };
+  },
+
+  // Requires an active recovery session (arrived via the reset-password email link).
+  async updatePasswordFromRecovery(newPassword) {
+    const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
+    return { ok: !error, error: error?.message };
+  },
+
+  async updateProfile({ currentPassword, newEmail, newPassword }) {
+    const email = await this.getEmail();
+    if (!email) return { ok: false, error: "Not logged in." };
+
+    const { error: reauthError } = await supabaseClient.auth.signInWithPassword({
+      email,
+      password: currentPassword,
+    });
+    if (reauthError) return { ok: false, error: "Current password is incorrect." };
+
+    const updates = {};
+    if (newEmail && newEmail !== email) updates.email = newEmail;
+    if (newPassword) updates.password = newPassword;
+    if (Object.keys(updates).length === 0) return { ok: true, updates };
+
+    const { error } = await supabaseClient.auth.updateUser(updates);
+    if (error) return { ok: false, error: error.message };
+    return { ok: true, updates };
   },
 };
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
   const toggle = document.querySelector(".nav-toggle");
   const links = document.querySelector(".nav-links");
-
-  const navLogin = document.querySelector(".nav-login");
-  if (navLogin) {
-    if (AVW_AUTH.isLoggedIn()) {
-      navLogin.textContent = "Member Area";
-      navLogin.setAttribute("href", "members.html");
-    } else {
-      navLogin.textContent = "Member Login";
-      navLogin.setAttribute("href", "login.html");
-    }
-  }
 
   if (toggle && links) {
     toggle.addEventListener("click", () => {
@@ -67,6 +79,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  const navLogin = document.querySelector(".nav-login");
+  if (navLogin) {
+    if (await AVW_AUTH.isLoggedIn()) {
+      navLogin.textContent = "Member Area";
+      navLogin.setAttribute("href", "members.html");
+    } else {
+      navLogin.textContent = "Member Login";
+      navLogin.setAttribute("href", "login.html");
+    }
+  }
+
   const form = document.querySelector("#contact-form");
   if (form) {
     form.addEventListener("submit", (e) => {
@@ -80,57 +103,108 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const loginForm = document.querySelector("#login-form");
   if (loginForm) {
-    if (AVW_AUTH.isLoggedIn()) {
+    if (await AVW_AUTH.isLoggedIn()) {
       window.location.replace("members.html");
     }
 
-    loginForm.addEventListener("submit", (e) => {
+    loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const username = document.querySelector("#username").value.trim();
+      const email = document.querySelector("#email").value.trim();
       const password = document.querySelector("#password").value;
       const error = document.querySelector("#login-error");
+      const submitBtn = loginForm.querySelector("button[type='submit']");
 
-      if (AVW_AUTH.login(username, password)) {
+      submitBtn.disabled = true;
+      const result = await AVW_AUTH.login(email, password);
+      submitBtn.disabled = false;
+
+      if (result.ok) {
         window.location.href = "members.html";
       } else if (error) {
-        error.textContent = "Incorrect username or password.";
+        error.textContent = result.error || "Incorrect email or password.";
       }
     });
   }
 
   const forgotBtn = document.querySelector("#forgot-password-btn");
   if (forgotBtn) {
-    forgotBtn.addEventListener("click", () => {
+    forgotBtn.addEventListener("click", async () => {
       const status = document.querySelector("#forgot-password-status");
-      const current = AVW_AUTH.getCredentials();
-      const confirmed = window.confirm(
-        `This placeholder reset has no email delivery — it can only reset the password back to the site default ("${AVW_AUTH.DEFAULT_CREDENTIALS.password}") for username "${current.username}". Continue?`
-      );
-      if (!confirmed) return;
+      const email = document.querySelector("#email").value.trim();
 
-      AVW_AUTH.setCredentials(current.username, AVW_AUTH.DEFAULT_CREDENTIALS.password);
-      if (status) {
-        status.textContent = `Password reset to the default. Log in with username "${current.username}" and password "${AVW_AUTH.DEFAULT_CREDENTIALS.password}".`;
+      if (!email) {
+        status.classList.add("auth-error");
+        status.textContent = "Enter your email above first, then click \"Forgot password?\"";
+        return;
+      }
+
+      forgotBtn.disabled = true;
+      const result = await AVW_AUTH.sendPasswordReset(email);
+      forgotBtn.disabled = false;
+
+      status.classList.remove("auth-error");
+      if (result.ok) {
+        status.textContent = `If an account exists for ${email}, a password reset link has been sent.`;
+      } else {
+        status.classList.add("auth-error");
+        status.textContent = result.error || "Something went wrong sending the reset email.";
+      }
+    });
+  }
+
+  const resetForm = document.querySelector("#reset-password-form");
+  if (resetForm) {
+    const { data } = await supabaseClient.auth.getSession();
+    const statusEl = document.querySelector("#reset-password-status");
+    if (!data.session) {
+      statusEl.classList.add("auth-error");
+      statusEl.textContent = "This reset link is invalid or has expired. Request a new one from the login page.";
+      resetForm.querySelector("button[type='submit']").disabled = true;
+    }
+
+    resetForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const newPassword = document.querySelector("#reset-new-password").value;
+      const confirmPassword = document.querySelector("#reset-confirm-password").value;
+
+      statusEl.classList.remove("auth-error", "auth-success");
+
+      if (newPassword !== confirmPassword) {
+        statusEl.classList.add("auth-error");
+        statusEl.textContent = "Passwords do not match.";
+        return;
+      }
+
+      const result = await AVW_AUTH.updatePasswordFromRecovery(newPassword);
+      if (result.ok) {
+        statusEl.classList.add("auth-success");
+        statusEl.textContent = "Password updated. Redirecting to the members area…";
+        setTimeout(() => window.location.replace("members.html"), 1500);
+      } else {
+        statusEl.classList.add("auth-error");
+        statusEl.textContent = result.error || "Something went wrong updating your password.";
       }
     });
   }
 
   const memberGate = document.querySelector("[data-member-gate]");
   if (memberGate) {
-    if (!AVW_AUTH.isLoggedIn()) {
+    if (!(await AVW_AUTH.isLoggedIn())) {
       window.location.replace("login.html");
+      return;
     }
 
     const logoutBtn = document.querySelector("#logout-btn");
     if (logoutBtn) {
-      logoutBtn.addEventListener("click", () => {
-        AVW_AUTH.logout();
+      logoutBtn.addEventListener("click", async () => {
+        await AVW_AUTH.logout();
         window.location.href = "login.html";
       });
     }
 
-    document.querySelectorAll("[data-current-username]").forEach((el) => {
-      el.textContent = AVW_AUTH.getCredentials().username;
+    const email = await AVW_AUTH.getEmail();
+    document.querySelectorAll("[data-current-email]").forEach((el) => {
+      el.textContent = email;
     });
   }
 
@@ -183,22 +257,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const profileForm = document.querySelector("#profile-form");
   if (profileForm) {
-    profileForm.addEventListener("submit", (e) => {
+    profileForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const currentPassword = document.querySelector("#current-password").value;
-      const newUsername = document.querySelector("#new-username").value.trim();
+      const newEmail = document.querySelector("#new-email").value.trim();
       const newPassword = document.querySelector("#new-password").value;
       const confirmPassword = document.querySelector("#confirm-password").value;
       const status = document.querySelector("#profile-status");
-      const current = AVW_AUTH.getCredentials();
+      const submitBtn = profileForm.querySelector("button[type='submit']");
 
       status.classList.remove("auth-error", "auth-success");
-
-      if (currentPassword !== current.password) {
-        status.textContent = "Current password is incorrect.";
-        status.classList.add("auth-error");
-        return;
-      }
 
       if (newPassword && newPassword !== confirmPassword) {
         status.textContent = "New password and confirmation do not match.";
@@ -206,15 +274,25 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      const finalUsername = newUsername || current.username;
-      const finalPassword = newPassword || current.password;
-      AVW_AUTH.setCredentials(finalUsername, finalPassword);
+      submitBtn.disabled = true;
+      const result = await AVW_AUTH.updateProfile({ currentPassword, newEmail, newPassword });
+      submitBtn.disabled = false;
 
-      status.textContent = "Profile updated.";
+      if (!result.ok) {
+        status.textContent = result.error;
+        status.classList.add("auth-error");
+        return;
+      }
+
       status.classList.add("auth-success");
+      status.textContent = result.updates?.email
+        ? "Profile updated. Check your new email address for a confirmation link before it takes effect."
+        : "Profile updated.";
       profileForm.reset();
-      document.querySelectorAll("[data-current-username]").forEach((el) => {
-        el.textContent = finalUsername;
+
+      const email = await AVW_AUTH.getEmail();
+      document.querySelectorAll("[data-current-email]").forEach((el) => {
+        el.textContent = email;
       });
     });
   }

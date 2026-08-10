@@ -26,7 +26,7 @@
 
   <main class="container">
     <div class="member-banner">
-      <span>Signed in as <strong data-current-username>adam</strong></span>
+      <span>Signed in as <strong data-current-email>…</strong></span>
       <span class="button-row" style="margin-top: 0;">
         <a href="members.html" class="btn-link" style="text-decoration: none;">Members Area</a>
         <button id="logout-btn" class="btn-link" type="button">Log out</button>
@@ -35,7 +35,7 @@
 
     <section class="hero">
       <h1>Profile</h1>
-      <p class="lede">Update your member username and password.</p>
+      <p class="lede">Update your member email and password.</p>
     </section>
 
     <section>
@@ -46,8 +46,8 @@
             <input id="current-password" name="current-password" type="password" autocomplete="current-password" required />
           </div>
           <div class="form-field">
-            <label for="new-username">New Username <span style="opacity: 0.6;">(optional)</span></label>
-            <input id="new-username" name="new-username" type="text" autocomplete="username" />
+            <label for="new-email">New Email <span style="opacity: 0.6;">(optional)</span></label>
+            <input id="new-email" name="new-email" type="email" autocomplete="username" />
           </div>
           <div class="form-field">
             <label for="new-password">New Password <span style="opacity: 0.6;">(optional)</span></label>
@@ -61,8 +61,8 @@
           <button class="btn btn-primary" type="submit">Save Changes</button>
         </form>
         <p class="auth-hint">
-          Placeholder profile update — credentials are stored in this browser's local storage,
-          not on a server. Leave username/password blank to keep the current value.
+          Backed by Supabase Auth — changing your email requires confirming a link sent to the new
+          address before it takes effect. Leave a field blank to keep its current value.
         </p>
       </div>
     </section>
@@ -79,6 +79,7 @@
     </div>
   </footer>
 
+  <script src="js/vendor/supabase.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
