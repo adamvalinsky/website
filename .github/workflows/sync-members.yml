@@ -1,0 +1,44 @@
+name: Sync members.csv to Supabase
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - members.csv
+
+jobs:
+  invite-members:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Invite each email in members.csv
+        env:
+          SUPABASE_URL: https://yoamadmjpawhyietyjkr.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          REDIRECT_TO: https://adamvalinsky.com/reset-password.html
+        run: |
+          set -e
+          tail -n +2 members.csv | while IFS=, read -r email _; do
+            email=$(echo "$email" | tr -d '\r' | xargs)
+            [ -z "$email" ] && continue
+
+            echo "Inviting $email..."
+            response=$(curl -s -w "\n%{http_code}" -X POST "$SUPABASE_URL/auth/v1/invite" \
+              -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" \
+              -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
+              -H "Content-Type: application/json" \
+              -d "{\"email\":\"$email\",\"redirect_to\":\"$REDIRECT_TO\"}")
+
+            http_code=$(echo "$response" | tail -n1)
+            body=$(echo "$response" | sed '$d')
+
+            if [ "$http_code" = "200" ] || [ "$http_code" = "201" ]; then
+              echo "  Invited $email"
+            elif echo "$body" | grep -qi "already been registered\|already registered\|already exists"; then
+              echo "  Skipped $email (already a member)"
+            else
+              echo "  Failed to invite $email (HTTP $http_code): $body"
+              exit 1
+            fi
+          done
