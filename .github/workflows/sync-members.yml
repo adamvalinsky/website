@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - members.csv
+  workflow_dispatch: {}
 
 jobs:
   invite-members:
